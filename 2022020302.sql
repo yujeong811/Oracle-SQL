@@ -164,38 +164,28 @@
            ORDER BY 2 DESC) A
    WHERE ROWNUM <= 5;
    
-  DECLARE
-   CURSOR CUR_BUY01 IS
-     SELECT A.PROD_ID AS APID,
-            A.REMAIN_J_99 AS AJ99
-       FROM (SELECT PROD_ID, REMAIN_J_99
-               FROM REMAIN
-              ORDER BY 2 DESC) A
-      WHERE ROWNUM <= 5;
-   V_PNAME PROD.PROD_NAME%TYPE;
-   V_DATE DATE;
-   V_QTY NUMBER:=0;
-  BEGIN
-   FOR REC IN CUR_BUY01 LOOP
-     SELECT PROD_NAME, BUY_DATE, BUY_QTY      --제품코드는 위에서 이미 함
-       INTO V_PNAME, V_DATE, V_QTY            --할당 받음
-       FROM PROD, BUYPROD
-      WHERE BUY_PROD=REC.APID
-        AND EXTRACT(YEAR FROM BUY_DATE) = 2005;
-      ORDER BY 2;
-     DBMS_OUTPUT.PUT_LINE('제품코드 : '|| REC.APID);
-     DBMS_OUTPUT.PUT_LINE('제품명 : '|| V_PNAME);
-     DBMS_OUTPUT.PUT_LINE('매입일 : '|| V_DATE);
-     DBMS_OUTPUT.PUT_LINE('매입수량 : '|| V_QTY);
-     DBMS_OUTPUT.PUT_LINE('-----------------------------');
-   END LOOP; 
-  END;
-   
- 
- 
- 
- 
- 
- 
- 
+   DECLARE
+    CURSOR CUR_BUY01 IS
+      SELECT A.PROD_ID AS APID
+        FROM (SELECT PROD_ID, REMAIN_J_99
+                FROM REMAIN
+               ORDER BY 2 DESC) A
+       WHERE ROWNUM <= 5;
+       V_PNAME PROD.PROD_NAME%TYPE;
+       V_QTY NUMBER:=0;
+   BEGIN
+    FOR REC IN CUR_BUY01 LOOP
+      SELECT PROD_NAME INTO V_PNAME
+        FROM PROD
+       WHERE PROD_ID=REC.APID;
+      SELECT SUM(BUY_QTY) INTO V_QTY
+        FROM BUYPROD
+       WHERE BUY_PROD=REC.APID
+         AND EXTRACT(YEAR FROM BUY_DATE)=2005;
+        DBMS_OUTPUT.PUT_LINE('제품코드 : '||REC.APID);
+        DBMS_OUTPUT.PUT_LINE('제품명 : '||V_PNAME);
+        DBMS_OUTPUT.PUT_LINE('매입수량합게 : '||V_QTY);
+        DBMS_OUTPUT.PUT_LINE('-------------------------');
+      END LOOP;
+    END;
   
